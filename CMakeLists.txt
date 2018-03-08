@@ -3,4 +3,4 @@ project(lecture14)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(lecture14 main.cpp)
+add_executable(lecture14 main.cpp studentinfo.cpp studentinfo.h gradebook.h gradebook.cpp)

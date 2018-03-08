@@ -1,6 +1,11 @@
+#include <fstream>
+#include <ios>
 #include <iostream>
+#include <limits>
 #include <map>
 #include <string>
+#include "gradebook.h"
+#include "studentinfo.h"
 
 using std::cin;
 using std::cout;
@@ -8,55 +13,68 @@ using std::endl;
 using std::string;
 using std::map;
 
-void addGrade(map<string, int>&gradebook);
-void findGrade(map<string, int>&gradebook);
-void printGrades(map<string, int>gradebook);
+void addGrade(Gradebook &gradebook);
+void findGrade(Gradebook &gradebook);
+void saveGradebook(const Gradebook &gradebook);
 
 int main() {
-
-    map<string,int> gradebook;
+    Gradebook gradebook;
 
     while(true) {
         string input;
         cout << "Enter command: ";
         cin >> input;
+        cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
 
         if(input == "exit") {
             return 0;
         } else if (input == "add") {
             addGrade(gradebook);
         } else if (input == "print") {
-            printGrades(gradebook);
+            cout << gradebook;
         } else if (input == "find") {
             findGrade(gradebook);
+        } else if (input == "save") {
+            saveGradebook(gradebook);
+        } else if (input == "read") {
+            std::string filename;
+            cout << "What filename to load from? ";
+            cin >> filename;
+            gradebook = Gradebook(filename);
+            if(gradebook.size() == 0) {
+                cout << "Empty Gradebook" << endl;
+            }
         }
     }
     return -1;
 }
 
-void addGrade(map<string, int> &gradebook) {
+void addGrade(Gradebook &gradebook) {
     cout << "What it the student and grade? ";
-    string name;
-    int grade;
-    cin >> name >> grade;
-    gradebook[name] = grade;
+    StudentRecord input_student;
+    cin >> input_student;
+    gradebook.addGrade(input_student);
 }
 
-void printGrades(map<string, int>gradebook){
-    cout << "Current Grades" << endl;
-    for(auto record : gradebook) {
-        cout << record.first << " : " << record.second << endl;
-    }
-}
-
-void findGrade(map<string, int>&gradebook) {
+void findGrade(Gradebook &gradebook) {
     cout << "What is the student's name? ";
     string student_name;
     cin >> student_name;
-    auto record = gradebook.find(student_name);
-    if (record != gradebook.end()) {
-        cout << student_name << " had a " << record->second << endl;
+    auto record = gradebook.findRecord(student_name);
+    if (record.valid()) {
+        cout << student_name << " had a " << record.getGrade()<< endl;
     } else {
         cout << "Could not find " << student_name << endl;
+    }
+}
+
+void saveGradebook(const Gradebook &gradebook) {
+    std::string filename;
+    cout << "What filename to save to? ";
+    cin >> filename;
+    if(gradebook.saveToFile(filename)) {
+        cout << "Gradebook saved" << endl;
+    } else {
+        cout << "Could not save to " << filename << endl;
     }
 }
